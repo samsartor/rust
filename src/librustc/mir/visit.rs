@@ -242,13 +242,6 @@ macro_rules! make_mir_visitor {
 
             fn super_body(&mut self,
                          body: & $($mutability)? Body<'tcx>) {
-                if let Some(yield_ty) = &$($mutability)? body.yield_ty {
-                    self.visit_ty(yield_ty, TyContext::YieldTy(SourceInfo {
-                        span: body.span,
-                        scope: OUTERMOST_SOURCE_SCOPE,
-                    }));
-                }
-
                 // for best performance, we want to use an iterator rather
                 // than a for-loop, to avoid calling `body::Body::invalidate` for
                 // each basic block.
@@ -989,8 +982,6 @@ pub enum TyContext {
 
     /// The return type of the function.
     ReturnTy(SourceInfo),
-
-    YieldTy(SourceInfo),
 
     /// A type found at some location.
     Location(Location),

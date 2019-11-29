@@ -74,7 +74,6 @@ impl<'cg, 'cx, 'tcx> Visitor<'tcx> for ConstraintGeneration<'cg, 'cx, 'tcx> {
     fn visit_ty(&mut self, ty: Ty<'tcx>, ty_context: TyContext) {
         match ty_context {
             TyContext::ReturnTy(SourceInfo { span, .. })
-            | TyContext::YieldTy(SourceInfo { span, .. })
             | TyContext::UserTy(span)
             | TyContext::LocalDecl { source_info: SourceInfo { span, .. }, .. } => {
                 span_bug!(

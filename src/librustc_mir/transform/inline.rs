@@ -220,8 +220,8 @@ impl Inliner<'tcx> {
         let tcx = self.tcx;
 
         // Cannot inline generators which haven't been transformed yet
-        if callee_body.yield_ty.is_some() {
-            debug!("    yield ty present - not inlining");
+        if callee_body.needs_generator_trans {
+            debug!("    needs generator transformation - not inlining");
             return false;
         }
 

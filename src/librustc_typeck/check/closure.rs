@@ -122,6 +122,11 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             self.demand_eqtype(
                 expr.span,
                 liberated_sig.output(),
+                yield_ty,
+            );
+            self.demand_eqtype(
+                expr.span,
+                liberated_sig.output(),
                 generator_substs.return_ty(expr_def_id, self.tcx),
             );
             self.demand_eqtype(

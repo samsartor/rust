@@ -631,11 +631,6 @@ fn write_mir_sig(
         write!(w, ": {} =", body.return_ty())?;
     }
 
-    if let Some(yield_ty) = body.yield_ty {
-        writeln!(w)?;
-        writeln!(w, "yields {}", yield_ty)?;
-    }
-
     write!(w, " ")?;
     // Next thing that gets printed is the opening {
 

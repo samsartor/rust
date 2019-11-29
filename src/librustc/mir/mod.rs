@@ -108,8 +108,7 @@ pub struct Body<'tcx> {
     /// needn't) be tracked across crates.
     pub source_scope_local_data: ClearCrossCrate<IndexVec<SourceScope, SourceScopeLocalData>>,
 
-    /// The yield type of the function, if it is a generator.
-    pub yield_ty: Option<Ty<'tcx>>,
+    pub needs_generator_trans: bool,
 
     /// Generator drop glue.
     pub generator_drop: Option<Box<Body<'tcx>>>,
@@ -189,7 +188,7 @@ impl<'tcx> Body<'tcx> {
             basic_blocks,
             source_scopes,
             source_scope_local_data,
-            yield_ty: None,
+            needs_generator_trans: false,
             generator_drop: None,
             generator_layout: None,
             generator_kind,

@@ -347,6 +347,7 @@ language_item_table! {
 
     FnTraitLangItem,             "fn",                 fn_trait,                Target::Trait;
     FnMutTraitLangItem,          "fn_mut",             fn_mut_trait,            Target::Trait;
+    FnPinTraitLangItem,          "fn_pin",             fn_pin_trait,            Target::Trait;
     FnOnceTraitLangItem,         "fn_once",            fn_once_trait,           Target::Trait;
 
     FutureTraitLangItem,         "future_trait",       future_trait,            Target::Trait;

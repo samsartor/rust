@@ -1511,6 +1511,7 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
             | TerminatorKind::Resume
             | TerminatorKind::Abort
             | TerminatorKind::Return
+            | TerminatorKind::Yield { .. }
             | TerminatorKind::GeneratorDrop
             | TerminatorKind::Unreachable
             | TerminatorKind::Drop { .. }
@@ -1631,29 +1632,6 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
                     }
                     if index.ty(body, tcx) != tcx.types.usize {
                         span_mirbug!(self, index, "bounds-check index non-usize {:?}", index)
-                    }
-                }
-            }
-            TerminatorKind::Yield { ref value, .. } => {
-                let value_ty = value.ty(body, tcx);
-                match body.yield_ty {
-                    None => span_mirbug!(self, term, "yield in non-generator"),
-                    Some(ty) => {
-                        if let Err(terr) = self.sub_types(
-                            value_ty,
-                            ty,
-                            term_location.to_locations(),
-                            ConstraintCategory::Yield,
-                        ) {
-                            span_mirbug!(
-                                self,
-                                term,
-                                "type of yield value is {:?}, but the yield type is {:?}: {:?}",
-                                value_ty,
-                                ty,
-                                terr
-                            );
-                        }
                     }
                 }
             }

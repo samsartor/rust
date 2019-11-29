@@ -1164,12 +1164,10 @@ where
 
 impl<'tcx> MirPass<'tcx> for StateTransform {
     fn run_pass(&self, tcx: TyCtxt<'tcx>, source: MirSource<'tcx>, body: &mut Body<'tcx>) {
-        let yield_ty = if let Some(yield_ty) = body.yield_ty {
-            yield_ty
-        } else {
+        if !body.needs_generator_trans {
             // This only applies to generators
             return
-        };
+        }
 
         assert!(body.generator_drop.is_none());
 
@@ -1194,7 +1192,7 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
         let state_did = tcx.lang_items().gen_state().unwrap();
         let state_adt_ref = tcx.adt_def(state_did);
         let state_substs = tcx.intern_substs(&[
-            yield_ty.into(),
+            body.return_ty().into(),
             body.return_ty().into(),
         ]);
         let ret_ty = tcx.mk_adt(state_adt_ref, state_substs);
@@ -1231,7 +1229,7 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
         transform.visit_body(body);
 
         // Update our MIR struct to reflect the changed we've made
-        body.yield_ty = None;
+        body.needs_generator_trans = false;
         body.arg_count = 1;
         body.spread_arg = None;
         body.generator_layout = Some(layout);

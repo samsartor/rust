@@ -1,3 +1,6 @@
+#[cfg(not(bootstrap))]
+use crate::pin::Pin;
+
 /// The version of the call operator that takes an immutable receiver.
 ///
 /// Instances of `Fn` can be called repeatedly without mutating state.
@@ -230,6 +233,24 @@ pub trait FnOnce<Args> {
     /// Performs the call operation.
     #[unstable(feature = "fn_traits", issue = "29625")]
     extern "rust-call" fn call_once(self, args: Args) -> Self::Output;
+}
+
+/// TODO: docs
+#[cfg(not(bootstrap))]
+#[lang = "fn_pin"]
+#[unstable(feature = "fn_pin", issue = "0")]
+#[rustc_paren_sugar]
+#[rustc_on_unimplemented(
+    on(Args="()", note="wrap the `{Self}` in a closure with no arguments: `|| {{ /* code */ }}"),
+    message="expected a `{FnPin}<{Args}>` closure, found `{Self}`",
+    label="expected an `FnPin<{Args}>` closure, found `{Self}`",
+)]
+#[fundamental] // so that regex can rely that `&str: !FnMut`
+#[must_use = "closures are lazy and do nothing unless called"]
+pub trait FnPin<Args>: FnOnce<Args> {
+    /// Performs the call operation.
+    #[unstable(feature = "fn_traits", issue = "29625")]
+    extern "rust-call" fn call_pinned(self: Pin<&mut Self>, args: Args) -> Self::Output;
 }
 
 mod impls {

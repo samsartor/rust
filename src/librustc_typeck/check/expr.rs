@@ -1743,23 +1743,20 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         &self,
         value: &'tcx hir::Expr,
         expr: &'tcx hir::Expr,
-        src: &'tcx hir::YieldSource
+        _src: &'tcx hir::YieldSource
     ) -> Ty<'tcx> {
-        match self.yield_ty {
-            Some(ty) => {
-                self.check_expr_coercable_to_type(&value, ty);
+        if self.ret_coercion.is_none() {
+            struct_span_err!(
+                self.tcx.sess,
+                expr.span,
+                E0572,
+                "yield statement outside of function body",
+            ).emit();
+        } else {
+            if self.ret_coercion_span.borrow().is_none() {
+                *self.ret_coercion_span.borrow_mut() = Some(value.span);
             }
-            // Given that this `yield` expression was generated as a result of lowering a `.await`,
-            // we know that the yield type must be `()`; however, the context won't contain this
-            // information. Hence, we check the source of the yield expression here and check its
-            // value's type against `()` (this check should always hold).
-            None if src == &hir::YieldSource::Await => {
-                self.check_expr_coercable_to_type(&value, self.tcx.mk_unit());
-            }
-            _ => {
-                struct_span_err!(self.tcx.sess, expr.span, E0627,
-                                    "yield statement outside of generator literal").emit();
-            }
+            self.check_return_expr(value);
         }
         self.tcx.mk_unit()
     }

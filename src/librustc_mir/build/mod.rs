@@ -148,17 +148,16 @@ pub fn mir_build(tcx: TyCtxt<'_>, def_id: DefId) -> Body<'_> {
 
             let arguments = implicit_argument.into_iter().chain(explicit_arguments);
 
-            let (yield_ty, return_ty) = if body.generator_kind.is_some() {
-                let gen_sig = match ty.kind {
+            let return_ty = if body.generator_kind.is_some() {
+                match ty.kind {
                     ty::Generator(gen_def_id, gen_substs, ..) =>
                         gen_substs.as_generator().sig(gen_def_id, tcx),
                     _ =>
                         span_bug!(tcx.hir().span(id),
                                   "generator w/o generator type: {:?}", ty),
-                };
-                (Some(gen_sig.yield_ty), gen_sig.return_ty)
+                }.return_ty
             } else {
-                (None, fn_sig.output())
+                fn_sig.output()
             };
 
             let mut mir = build::construct_fn(
@@ -171,7 +170,7 @@ pub fn mir_build(tcx: TyCtxt<'_>, def_id: DefId) -> Body<'_> {
                 return_ty_span,
                 body,
             );
-            mir.yield_ty = yield_ty;
+            mir.needs_generator_trans = body.generator_kind.is_some();
             mir
         } else {
             // Get the revealed type of this const. This is *not* the adjusted

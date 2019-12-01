@@ -1,4 +1,3 @@
-#[cfg(not(bootstrap))]
 use crate::pin::Pin;
 
 /// The version of the call operator that takes an immutable receiver.
@@ -236,8 +235,7 @@ pub trait FnOnce<Args> {
 }
 
 /// TODO: docs
-#[cfg(not(bootstrap))]
-#[lang = "fn_pin"]
+#[cfg_attr(not(bootstrap), lang = "fn_pin")]
 #[unstable(feature = "fn_pin", issue = "0")]
 #[rustc_paren_sugar]
 #[rustc_on_unimplemented(

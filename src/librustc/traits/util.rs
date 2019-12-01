@@ -640,13 +640,13 @@ impl<'tcx> TyCtxt<'tcx> {
         fn_trait_def_id: DefId,
         self_ty: Ty<'tcx>,
         sig: ty::PolyGenSig<'tcx>)
-        -> ty::Binder<(ty::TraitRef<'tcx>, Ty<'tcx>, Ty<'tcx>)>
+        -> ty::Binder<(ty::TraitRef<'tcx>, Ty<'tcx>)>
     {
         let trait_ref = ty::TraitRef {
             def_id: fn_trait_def_id,
             substs: self.mk_substs_trait(self_ty, &[]),
         };
-        ty::Binder::bind((trait_ref, sig.skip_binder().yield_ty, sig.skip_binder().return_ty))
+        ty::Binder::bind((trait_ref, sig.skip_binder().return_ty))
     }
 
     pub fn impl_is_default(self, node_item_def_id: DefId) -> bool {

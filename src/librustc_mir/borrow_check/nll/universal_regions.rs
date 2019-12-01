@@ -71,8 +71,6 @@ pub struct UniversalRegions<'tcx> {
     /// N.B., associated types in these types have not been normalized,
     /// as the name suggests. =)
     pub unnormalized_input_tys: &'tcx [Ty<'tcx>],
-
-    pub yield_ty: Option<Ty<'tcx>>,
 }
 
 /// The "defining type" for this MIR. The key feature of the "defining
@@ -468,13 +466,6 @@ impl<'cx, 'tcx> UniversalRegionsBuilder<'cx, 'tcx> {
             first_local_index, num_universals
         );
 
-        let yield_ty = match defining_ty {
-            DefiningTy::Generator(def_id, substs, _) => {
-                Some(substs.as_generator().yield_ty(def_id, self.infcx.tcx))
-            }
-            _ => None,
-        };
-
         UniversalRegions {
             indices,
             fr_static,
@@ -485,7 +476,6 @@ impl<'cx, 'tcx> UniversalRegionsBuilder<'cx, 'tcx> {
             defining_ty,
             unnormalized_output_ty,
             unnormalized_input_tys,
-            yield_ty: yield_ty,
         }
     }
 

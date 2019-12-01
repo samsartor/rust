@@ -112,18 +112,8 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 }
             }
         });
-        if let Some(GeneratorTypes { yield_ty, interior, movability }) = generator_types {
+        if let Some(GeneratorTypes { interior, movability }) = generator_types {
             let generator_substs = substs.as_generator();
-            self.demand_eqtype(
-                expr.span,
-                yield_ty,
-                generator_substs.yield_ty(expr_def_id, self.tcx),
-            );
-            self.demand_eqtype(
-                expr.span,
-                liberated_sig.output(),
-                yield_ty,
-            );
             self.demand_eqtype(
                 expr.span,
                 liberated_sig.output(),
@@ -297,7 +287,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 _ => return None,
             }
         } else {
-            // Generators cannot have explicit arguments.
+            // Generators cannot have explicit arguments (yet).
             vec![]
         };
 

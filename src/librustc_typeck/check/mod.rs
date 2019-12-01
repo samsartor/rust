@@ -592,8 +592,6 @@ pub struct FnCtxt<'a, 'tcx> {
     /// First span of a return site that we find. Used in error messages.
     ret_coercion_span: RefCell<Option<Span>>,
 
-    yield_ty: Option<Ty<'tcx>>,
-
     ps: RefCell<UnsafetyState>,
 
     /// Whether the last checked node generates a divergence (e.g.,
@@ -1237,9 +1235,6 @@ impl<'a, 'tcx> Visitor<'tcx> for GatherLocalsVisitor<'a, 'tcx> {
 /// includes yield), it returns back some information about the yield
 /// points.
 struct GeneratorTypes<'tcx> {
-    /// Type of value that is yielded.
-    yield_ty: Ty<'tcx>,
-
     /// Types that are captured (see `GeneratorInterior` for more).
     interior: Ty<'tcx>,
 
@@ -1291,15 +1286,6 @@ fn check_fn<'a, 'tcx>(
     let span = body.value.span;
 
     fn_maybe_err(fcx.tcx, span, fn_sig.abi);
-
-    if body.generator_kind.is_some() && can_be_generator.is_some() {
-        let yield_ty = fcx.next_ty_var(TypeVariableOrigin {
-            kind: TypeVariableOriginKind::TypeInference,
-            span,
-        });
-        fcx.require_type_is_sized(yield_ty, span, traits::SizedYieldType);
-        fcx.yield_ty = Some(yield_ty);
-    }
 
     let outer_def_id = fcx.tcx.closure_base_def_id(fcx.tcx.hir().local_def_id(fn_id));
     let outer_hir_id = fcx.tcx.hir().as_local_hir_id(outer_def_id).unwrap();
@@ -1356,7 +1342,6 @@ fn check_fn<'a, 'tcx>(
         });
         fcx.deferred_generator_interiors.borrow_mut().push((body.id(), interior, gen_kind));
         Some(GeneratorTypes {
-            yield_ty: fcx.yield_ty.unwrap(),
             interior,
             movability: can_be_generator.unwrap(),
         })
@@ -2673,7 +2658,6 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             err_count_on_creation: inh.tcx.sess.err_count(),
             ret_coercion: None,
             ret_coercion_span: RefCell::new(None),
-            yield_ty: None,
             ps: RefCell::new(UnsafetyState::function(hir::Unsafety::Normal,
                                                      hir::CRATE_HIR_ID)),
             diverges: Cell::new(Diverges::Maybe),

@@ -97,8 +97,7 @@ impl OutlivesSuggestionBuilder<'a> {
             | RegionNameSource::MatchedHirTy(..)
             | RegionNameSource::MatchedAdtAndSegment(..)
             | RegionNameSource::AnonRegionFromUpvar(..)
-            | RegionNameSource::AnonRegionFromOutput(..)
-            | RegionNameSource::AnonRegionFromYieldTy(..) => {
+            | RegionNameSource::AnonRegionFromOutput(..) => {
                 debug!("Region {:?} is NOT suggestable", name);
                 false
             }

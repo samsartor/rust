@@ -92,10 +92,11 @@ impl<'tcx> Instance<'tcx> {
                 let env_ty = tcx.mk_adt(pin_adt_ref, pin_substs);
 
                 sig.map_bound(|sig| {
+                    // TODO yield_closures: remove state
                     let state_did = tcx.lang_items().gen_state().unwrap();
                     let state_adt_ref = tcx.adt_def(state_did);
                     let state_substs = tcx.intern_substs(&[
-                        sig.yield_ty.into(),
+                        sig.return_ty.into(),
                         sig.return_ty.into(),
                     ]);
                     let ret_ty = tcx.mk_adt(state_adt_ref, state_substs);

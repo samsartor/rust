@@ -401,7 +401,6 @@ pub struct GeneratorSubsts<'tcx> {
 }
 
 struct SplitGeneratorSubsts<'tcx> {
-    yield_ty: Ty<'tcx>,
     return_ty: Ty<'tcx>,
     witness: Ty<'tcx>,
     upvar_kinds: &'tcx [GenericArg<'tcx>],
@@ -412,10 +411,9 @@ impl<'tcx> GeneratorSubsts<'tcx> {
         let generics = tcx.generics_of(def_id);
         let parent_len = generics.parent_count;
         SplitGeneratorSubsts {
-            yield_ty: self.substs.type_at(parent_len),
-            return_ty: self.substs.type_at(parent_len + 1),
-            witness: self.substs.type_at(parent_len + 2),
-            upvar_kinds: &self.substs[parent_len + 3..],
+            return_ty: self.substs.type_at(parent_len),
+            witness: self.substs.type_at(parent_len + 1),
+            upvar_kinds: &self.substs[parent_len + 2..],
         }
     }
 
@@ -446,7 +444,7 @@ impl<'tcx> GeneratorSubsts<'tcx> {
 
     /// Returns the type representing the yield type of the generator.
     pub fn yield_ty(self, def_id: DefId, tcx: TyCtxt<'_>) -> Ty<'tcx> {
-        self.split(def_id, tcx).yield_ty
+        self.split(def_id, tcx).return_ty
     }
 
     /// Returns the type representing the return type of the generator.
@@ -468,7 +466,6 @@ impl<'tcx> GeneratorSubsts<'tcx> {
     /// and return types.
     pub fn sig(self, def_id: DefId, tcx: TyCtxt<'_>) -> GenSig<'tcx> {
         ty::GenSig {
-            yield_ty: self.yield_ty(def_id, tcx),
             return_ty: self.return_ty(def_id, tcx),
         }
     }
@@ -1041,7 +1038,6 @@ impl<'tcx> ProjectionTy<'tcx> {
 
 #[derive(Clone, Debug, TypeFoldable)]
 pub struct GenSig<'tcx> {
-    pub yield_ty: Ty<'tcx>,
     pub return_ty: Ty<'tcx>,
 }
 
@@ -1049,8 +1045,9 @@ pub type PolyGenSig<'tcx> = Binder<GenSig<'tcx>>;
 
 impl<'tcx> PolyGenSig<'tcx> {
     pub fn yield_ty(&self) -> ty::Binder<Ty<'tcx>> {
-        self.map_bound_ref(|sig| sig.yield_ty)
+        self.map_bound_ref(|sig| sig.return_ty)
     }
+
     pub fn return_ty(&self) -> ty::Binder<Ty<'tcx>> {
         self.map_bound_ref(|sig| sig.return_ty)
     }

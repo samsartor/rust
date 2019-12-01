@@ -1282,12 +1282,12 @@ fn confirm_generator_candidate<'cx, 'tcx>(
         tcx.generator_trait_ref_and_outputs(gen_def_id,
                                             obligation.predicate.self_ty(),
                                             gen_sig)
-        .map_bound(|(trait_ref, yield_ty, return_ty)| {
+        .map_bound(|(trait_ref, return_ty)| {
             let name = tcx.associated_item(obligation.predicate.item_def_id).ident.name;
             let ty = if name == sym::Return {
                 return_ty
             } else if name == sym::Yield {
-                yield_ty
+                return_ty
             } else {
                 bug!()
             };

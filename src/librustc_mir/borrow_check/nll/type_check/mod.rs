@@ -168,7 +168,7 @@ pub(crate) fn type_check<'tcx>(
         &mut borrowck_context,
         &universal_region_relations,
         |mut cx| {
-            cx.equate_inputs_and_outputs(body, universal_regions, &normalized_inputs_and_output);
+            cx.equate_inputs_and_outputs(body, &normalized_inputs_and_output);
             liveness::generate(&mut cx, body, elements, flow_inits, move_data, location_table);
 
             translate_outlives_facts(cx.borrowck_context);

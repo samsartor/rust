@@ -177,6 +177,9 @@ pub use self::drop::Drop;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use self::function::{Fn, FnMut, FnOnce};
 
+#[unstable(feature = "fn_pin", issue = "0")]
+pub use self::function::{FnPin};
+
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use self::index::{Index, IndexMut};
 

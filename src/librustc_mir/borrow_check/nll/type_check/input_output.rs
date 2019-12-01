@@ -7,7 +7,6 @@
 //! `RETURN_PLACE` the MIR arguments) are always fully normalized (and
 //! contain revealed `impl Trait` values).
 
-use crate::borrow_check::nll::universal_regions::UniversalRegions;
 use rustc::infer::LateBoundRegionConversionTime;
 use rustc::mir::*;
 use rustc::ty::Ty;
@@ -21,7 +20,6 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
     pub(super) fn equate_inputs_and_outputs(
         &mut self,
         body: &Body<'tcx>,
-        universal_regions: &UniversalRegions<'tcx>,
         normalized_inputs_and_output: &[Ty<'tcx>],
     ) {
         let (&normalized_output_ty, normalized_input_tys) =
@@ -101,16 +99,6 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
                     mir_input_span,
                 );
             }
-        }
-
-        assert!(
-            body.needs_generator_trans && universal_regions.yield_ty.is_some()
-                || !body.needs_generator_trans && universal_regions.yield_ty.is_none()
-        );
-        if body.needs_generator_trans {
-            let ur_yield_ty = universal_regions.yield_ty.unwrap();
-            let yield_span = body.local_decls[RETURN_PLACE].source_info.span;
-            self.equate_normalized_input_or_output(ur_yield_ty, body.local_decls[RETURN_PLACE].ty, yield_span);
         }
 
         // Return types are a bit more complex. They may contain opaque `impl Trait` types.

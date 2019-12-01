@@ -1086,7 +1086,7 @@ fn generics_of(tcx: TyCtxt<'_>, def_id: DefId) -> &ty::Generics {
     }) = node
     {
         let dummy_args = if gen.is_some() {
-            &["<yield_ty>", "<return_ty>", "<witness>"][..]
+            &["<return_ty>", "<witness>"][..]
         } else {
             &["<closure_kind>", "<closure_signature>"][..]
         };

@@ -821,6 +821,7 @@ symbols! {
         wrapping_sub,
         wrapping_mul,
         Yield,
+        yield_closures,
     }
 }
 

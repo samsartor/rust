@@ -1479,6 +1479,7 @@ impl<'tcx> TyCtxt<'tcx> {
         match self.def_kind(def_id) {
             DefKind::Generator => match self.generator_kind(def_id).unwrap() {
                 rustc_hir::GeneratorKind::Async(..) => ("an", "async closure"),
+                rustc_hir::GeneratorKind::Closure => ("a", "yield closure"),
                 rustc_hir::GeneratorKind::Gen => ("a", "generator"),
             },
             def_kind => (def_kind.article(), def_kind.descr(def_id)),

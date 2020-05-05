@@ -1191,6 +1191,7 @@ impl<'cx, 'tcx> MirBorrowckCtxt<'cx, 'tcx> {
                     AsyncGeneratorKind::Closure => "async closure",
                     _ => bug!("async block/closure expected, but async function found."),
                 },
+                GeneratorKind::Closure => "yield closure",
                 GeneratorKind::Gen => "generator",
             },
             None => "closure",

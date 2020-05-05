@@ -581,7 +581,9 @@ impl<'hir> LoweringContext<'_, 'hir> {
     fn lower_expr_await(&mut self, await_span: Span, expr: &Expr) -> hir::ExprKind<'hir> {
         match self.generator_kind {
             Some(hir::GeneratorKind::Async(_)) => {}
-            Some(hir::GeneratorKind::Gen) | None => {
+            Some(hir::GeneratorKind::Gen) |
+            Some(hir::GeneratorKind::Closure) | // FIXME: implement Poll-closure deferring
+            None => {
                 let mut err = struct_span_err!(
                     self.sess,
                     await_span,
@@ -759,6 +761,7 @@ impl<'hir> LoweringContext<'_, 'hir> {
         movability: Movability,
     ) -> Option<hir::Movability> {
         match generator_kind {
+            Some(hir::GeneratorKind::Closure) => Some(movability),
             Some(hir::GeneratorKind::Gen) => {
                 if decl.inputs.len() > 1 {
                     struct_span_err!(
@@ -1012,7 +1015,7 @@ impl<'hir> LoweringContext<'_, 'hir> {
 
     fn lower_expr_yield(&mut self, span: Span, opt_expr: Option<&Expr>) -> hir::ExprKind<'hir> {
         match self.generator_kind {
-            Some(hir::GeneratorKind::Gen) => {}
+            Some(hir::GeneratorKind::Gen | hir::GeneratorKind::Closure) => {}
             Some(hir::GeneratorKind::Async(_)) => {
                 struct_span_err!(
                     self.sess,

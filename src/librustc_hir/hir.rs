@@ -1227,6 +1227,9 @@ pub enum GeneratorKind {
     /// An explicit `async` block or the body of an async function.
     Async(AsyncGeneratorKind),
 
+    /// A mostly ordinary Fn(Mut|Pin) closure which will run through generator transform.
+    Closure,
+
     /// A generator literal created via a `yield` inside a closure.
     Gen,
 }
@@ -1235,6 +1238,7 @@ impl fmt::Display for GeneratorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             GeneratorKind::Async(k) => fmt::Display::fmt(k, f),
+            GeneratorKind::Closure => f.write_str("`yield` closure"),
             GeneratorKind::Gen => f.write_str("generator"),
         }
     }
@@ -1763,7 +1767,7 @@ impl From<GeneratorKind> for YieldSource {
     fn from(kind: GeneratorKind) -> Self {
         match kind {
             // Guess based on the kind of the current generator.
-            GeneratorKind::Gen => Self::Yield,
+            GeneratorKind::Gen | GeneratorKind::Closure => Self::Yield,
             GeneratorKind::Async(_) => Self::Await { expr: None },
         }
     }

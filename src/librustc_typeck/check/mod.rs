@@ -1404,13 +1404,17 @@ fn check_fn<'a, 'tcx>(
             .next_ty_var(TypeVariableOrigin { kind: TypeVariableOriginKind::MiscVariable, span });
         fcx.deferred_generator_interiors.borrow_mut().push((body.id(), interior, gen_kind));
 
-        let (resume_ty, yield_ty) = fcx.resume_yield_tys.unwrap();
-        Some(GeneratorTypes {
-            resume_ty,
-            yield_ty,
-            interior,
-            movability: can_be_generator.unwrap(),
-        })
+        if let hir::GeneratorKind::Closure = gen_kind {
+            None
+        } else {
+            let (resume_ty, yield_ty) = fcx.resume_yield_tys.unwrap();
+            Some(GeneratorTypes {
+                resume_ty,
+                yield_ty,
+                interior,
+                movability: can_be_generator.unwrap(),
+            })
+        }
     } else {
         None
     };

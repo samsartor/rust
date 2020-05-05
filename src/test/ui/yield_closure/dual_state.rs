@@ -1,6 +1,6 @@
 // check-pass
 
-#![feature(yield_closures)]
+#![feature(generators, yield_closures)]
 
 fn main() {
     let mut g = || {

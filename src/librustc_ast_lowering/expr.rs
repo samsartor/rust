@@ -1026,7 +1026,13 @@ impl<'hir> LoweringContext<'_, 'hir> {
                 .emit();
                 return hir::ExprKind::Err;
             }
-            None => self.generator_kind = Some(hir::GeneratorKind::Gen),
+            None => {
+                if self.sess.features_untracked().yield_closures {
+                    self.generator_kind = Some(hir::GeneratorKind::Closure)
+                } else {
+                    self.generator_kind = Some(hir::GeneratorKind::Gen)
+                }
+            }
         }
 
         let expr =

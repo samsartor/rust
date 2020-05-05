@@ -669,17 +669,19 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         }
     }
 
-    fn check_expr_return(
+    fn check_expr_return_like(
         &self,
         expr_opt: Option<&'tcx hir::Expr<'tcx>>,
         expr: &'tcx hir::Expr<'tcx>,
-    ) -> Ty<'tcx> {
+        name: &str,
+    ) {
         if self.ret_coercion.is_none() {
             struct_span_err!(
                 self.tcx.sess,
                 expr.span,
                 E0572,
-                "return statement outside of function body",
+                "{} statement outside of function body",
+                name,
             )
             .emit();
         } else if let Some(ref e) = expr_opt {
@@ -712,6 +714,14 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 coercion.coerce_forced_unit(self, &cause, &mut |_| (), true);
             }
         }
+    }
+
+    fn check_expr_return(
+        &self,
+        expr_opt: Option<&'tcx hir::Expr<'tcx>>,
+        expr: &'tcx hir::Expr<'tcx>,
+    ) -> Ty<'tcx> {
+        self.check_expr_return_like(expr_opt, expr, "return");
         self.tcx.types.never
     }
 
@@ -1785,6 +1795,11 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         expr: &'tcx hir::Expr<'tcx>,
         src: &'tcx hir::YieldSource,
     ) -> Ty<'tcx> {
+        if self.tcx.features().yield_closures {
+            self.check_expr_return_like(Some(value), expr, "yield");
+            return self.tcx.mk_unit();
+        }
+
         match self.resume_yield_tys {
             Some((resume_ty, yield_ty)) => {
                 self.check_expr_coercable_to_type(&value, yield_ty);

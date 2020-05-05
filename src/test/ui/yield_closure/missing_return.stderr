@@ -1,0 +1,12 @@
+error[E0308]: foobar
+  --> $DIR/missing_return.rs:4:16
+   |
+LL |       let _ = || {
+   |  ________________^
+LL | |         yield 0;
+LL | |     };
+   | |_____^ expected integer, found `()`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0308`.

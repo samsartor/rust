@@ -565,6 +565,9 @@ declare_features! (
     /// Allow conditional compilation depending on rust version
     (active, cfg_version, "1.45.0", Some(64796), None),
 
+    /// Allows yield in closures. Incompatible with "generators".
+    (active, yield_closures, "1.45.0", Some(43122), None),
+
     // -------------------------------------------------------------------------
     // feature-group-end: actual feature gates
     // -------------------------------------------------------------------------

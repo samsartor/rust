@@ -132,6 +132,7 @@ impl FlagComputation {
 
                 self.add_ty(substs.sig_as_fn_ptr_ty());
                 self.add_ty(substs.kind_ty());
+                self.add_ty(substs.witness_ty());
                 self.add_ty(substs.tupled_upvars_ty());
             }
 

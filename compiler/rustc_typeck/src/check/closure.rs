@@ -154,6 +154,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 closure_kind_ty,
                 closure_sig_as_fn_ptr_ty: self.tcx.mk_fn_ptr(sig),
                 tupled_upvars_ty,
+                witness_ty: self.tcx.mk_unit(),
             },
         );
 

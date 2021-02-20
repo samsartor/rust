@@ -7,6 +7,7 @@ LL |         let mut closure = || p = &y;
    = note: defining type: test::{closure#0} with closure substs [
                i16,
                extern "rust-call" fn(()),
+               (),
                (&'_#1r mut &'_#2r i32, &'_#3r i32),
            ]
    = note: number of external vids: 4

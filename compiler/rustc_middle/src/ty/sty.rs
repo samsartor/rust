@@ -331,6 +331,7 @@ pub struct ClosureSubstsParts<'tcx, T> {
     pub parent_substs: &'tcx [GenericArg<'tcx>],
     pub closure_kind_ty: T,
     pub closure_sig_as_fn_ptr_ty: T,
+    pub witness_ty: T,
     pub tupled_upvars_ty: T,
 }
 
@@ -344,9 +345,14 @@ impl<'tcx> ClosureSubsts<'tcx> {
         ClosureSubsts {
             substs: tcx.mk_substs(
                 parts.parent_substs.iter().copied().chain(
-                    [parts.closure_kind_ty, parts.closure_sig_as_fn_ptr_ty, parts.tupled_upvars_ty]
-                        .iter()
-                        .map(|&ty| ty.into()),
+                    [
+                        parts.closure_kind_ty,
+                        parts.closure_sig_as_fn_ptr_ty,
+                        parts.witness_ty,
+                        parts.tupled_upvars_ty,
+                    ]
+                    .iter()
+                    .map(|&ty| ty.into()),
                 ),
             ),
         }
@@ -356,11 +362,12 @@ impl<'tcx> ClosureSubsts<'tcx> {
     /// The ordering assumed here must match that used by `ClosureSubsts::new` above.
     fn split(self) -> ClosureSubstsParts<'tcx, GenericArg<'tcx>> {
         match self.substs[..] {
-            [ref parent_substs @ .., closure_kind_ty, closure_sig_as_fn_ptr_ty, tupled_upvars_ty] => {
+            [ref parent_substs @ .., closure_kind_ty, closure_sig_as_fn_ptr_ty, witness_ty, tupled_upvars_ty] => {
                 ClosureSubstsParts {
                     parent_substs,
                     closure_kind_ty,
                     closure_sig_as_fn_ptr_ty,
+                    witness_ty,
                     tupled_upvars_ty,
                 }
             }
@@ -374,7 +381,7 @@ impl<'tcx> ClosureSubsts<'tcx> {
     /// Used primarily by `ty::print::pretty` to be able to handle closure
     /// types that haven't had their synthetic types substituted in.
     pub fn is_valid(self) -> bool {
-        self.substs.len() >= 3
+        self.substs.len() >= 4
             && matches!(self.split().tupled_upvars_ty.expect_ty().kind(), Tuple(_))
     }
 
@@ -402,6 +409,11 @@ impl<'tcx> ClosureSubsts<'tcx> {
     #[inline]
     pub fn tupled_upvars_ty(self) -> Ty<'tcx> {
         self.split().tupled_upvars_ty.expect_ty()
+    }
+
+    /// Returns the witness type which stores closure state across yields.
+    pub fn witness_ty(self) -> Ty<'tcx> {
+        self.split().witness_ty.expect_ty()
     }
 
     /// Returns the closure kind for this closure; may return a type

@@ -1676,7 +1676,7 @@ fn generics_of(tcx: TyCtxt<'_>, def_id: DefId) -> ty::Generics {
         let dummy_args = if gen.is_some() {
             &["<resume_ty>", "<yield_ty>", "<return_ty>", "<witness>", "<upvars>"][..]
         } else {
-            &["<closure_kind>", "<closure_signature>", "<upvars>"][..]
+            &["<closure_kind>", "<closure_signature>", "<witness>", "<upvars>"][..]
         };
 
         params.extend(dummy_args.iter().enumerate().map(|(i, &arg)| ty::GenericParamDef {

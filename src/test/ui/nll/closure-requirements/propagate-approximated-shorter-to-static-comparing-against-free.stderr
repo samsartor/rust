@@ -12,6 +12,7 @@ LL | |     })
                i32,
                for<'r> extern "rust-call" fn((std::cell::Cell<&'_#1r u32>, std::cell::Cell<&ReLateBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrNamed('r) }) u32>)),
                (),
+               (),
            ]
 
 error[E0521]: borrowed data escapes outside of closure
@@ -50,6 +51,7 @@ LL | |     })
    = note: defining type: case2::{closure#0} with closure substs [
                i32,
                for<'r> extern "rust-call" fn((std::cell::Cell<&'_#1r u32>, std::cell::Cell<&ReLateBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrNamed('r) }) u32>)),
+               (),
                (),
            ]
    = note: number of external vids: 2

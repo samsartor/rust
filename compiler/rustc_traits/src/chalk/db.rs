@@ -592,7 +592,7 @@ impl<'tcx> chalk_solve::RustIrDatabase<RustInterner<'tcx>> for RustIrDatabase<'t
         _closure_id: chalk_ir::ClosureId<RustInterner<'tcx>>,
         substs: &chalk_ir::Substitution<RustInterner<'tcx>>,
     ) -> chalk_solve::rust_ir::ClosureKind {
-        let kind = &substs.as_slice(&self.interner)[substs.len(&self.interner) - 3];
+        let kind = &substs.as_slice(&self.interner)[substs.len(&self.interner) - 4];
         match kind.assert_ty_ref(&self.interner).kind(&self.interner) {
             chalk_ir::TyKind::Scalar(chalk_ir::Scalar::Int(int_ty)) => match int_ty {
                 chalk_ir::IntTy::I8 => chalk_solve::rust_ir::ClosureKind::Fn,
@@ -610,7 +610,7 @@ impl<'tcx> chalk_solve::RustIrDatabase<RustInterner<'tcx>> for RustIrDatabase<'t
         substs: &chalk_ir::Substitution<RustInterner<'tcx>>,
     ) -> chalk_ir::Binders<chalk_solve::rust_ir::FnDefInputsAndOutputDatum<RustInterner<'tcx>>>
     {
-        let sig = &substs.as_slice(&self.interner)[substs.len(&self.interner) - 2];
+        let sig = &substs.as_slice(&self.interner)[substs.len(&self.interner) - 3];
         match sig.assert_ty_ref(&self.interner).kind(&self.interner) {
             chalk_ir::TyKind::Function(f) => {
                 let substitution = f.substitution.0.as_slice(&self.interner);
@@ -654,7 +654,7 @@ impl<'tcx> chalk_solve::RustIrDatabase<RustInterner<'tcx>> for RustIrDatabase<'t
         _closure_id: chalk_ir::ClosureId<RustInterner<'tcx>>,
         substs: &chalk_ir::Substitution<RustInterner<'tcx>>,
     ) -> chalk_ir::Substitution<RustInterner<'tcx>> {
-        let substitution = &substs.as_slice(&self.interner)[0..substs.len(&self.interner) - 3];
+        let substitution = &substs.as_slice(&self.interner)[0..substs.len(&self.interner) - 4];
         chalk_ir::Substitution::from_iter(&self.interner, substitution)
     }
 

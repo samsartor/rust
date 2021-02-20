@@ -15,6 +15,7 @@ LL | |     });
                i32,
                extern "rust-call" fn((T,)),
                (),
+               (),
            ]
    = note: number of external vids: 2
    = note: where T: '_#1r

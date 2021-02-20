@@ -8,6 +8,7 @@ LL |     with_signature(cell, t, |cell, t| require(cell, t));
                i32,
                extern "rust-call" fn((std::cell::Cell<&'_#2r ()>, T)),
                (),
+               (),
            ]
    = note: late-bound region is '_#3r
    = note: number of external vids: 4
@@ -59,6 +60,7 @@ LL |     with_signature(cell, t, |cell, t| require(cell, t));
                i32,
                extern "rust-call" fn((std::cell::Cell<&'_#3r ()>, T)),
                (),
+               (),
            ]
    = note: number of external vids: 4
    = note: where T: '_#3r
@@ -109,6 +111,7 @@ LL |     with_signature(cell, t, |cell, t| require(cell, t));
                i32,
                extern "rust-call" fn((std::cell::Cell<&'_#3r ()>, T)),
                (),
+               (),
            ]
    = note: number of external vids: 4
    = note: where <T as Anything<ReEarlyBound(1, 'b)>>::AssocType: '_#3r
@@ -136,6 +139,7 @@ LL |     with_signature(cell, t, |cell, t| require(cell, t));
    = note: defining type: elements_outlive::<'_#1r, '_#2r, T>::{closure#0} with closure substs [
                i32,
                extern "rust-call" fn((std::cell::Cell<&'_#3r ()>, T)),
+               (),
                (),
            ]
    = note: number of external vids: 4

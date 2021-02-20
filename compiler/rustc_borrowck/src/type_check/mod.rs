@@ -1648,8 +1648,24 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
             }
             TerminatorKind::Yield { ref value, .. } => {
                 let value_ty = value.ty(body, tcx);
-                match body.yield_ty() {
-                    None => span_mirbug!(self, term, "yield in non-generator"),
+                match body.yield_ty {
+                    None => {
+                        if let Err(terr) = self.sub_types(
+                            value_ty,
+                            body.return_ty(),
+                            term_location.to_locations(),
+                            ConstraintCategory::Yield,
+                        ) {
+                            span_mirbug!(
+                                self,
+                                term,
+                                "type of yield value is {:?}, but the return/yield type is {:?}: {:?}",
+                                value_ty,
+                                body.return_ty(),
+                                terr
+                            );
+                        }
+                    }
                     Some(ty) => {
                         if let Err(terr) = self.sub_types(
                             value_ty,

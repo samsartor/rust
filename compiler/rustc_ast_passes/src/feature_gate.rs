@@ -655,7 +655,10 @@ pub fn check_crate(krate: &ast::Crate, sess: &Session) {
         "to use an async block, remove the `||`: `async {`"
     );
     gate_all!(more_qualified_paths, "usage of qualified paths in this context is experimental");
-    gate_all!(generators, "yield syntax is experimental");
+    if !visitor.features.yield_closures {
+        gate_all!(generators, "yield syntax is experimental");
+    }
+    gate_all!(yield_closures, "yield syntax is experimental");
     gate_all!(raw_ref_op, "raw address of syntax is experimental");
     gate_all!(const_trait_impl, "const trait impls are experimental");
     gate_all!(half_open_range_patterns, "half-open range patterns are unstable");

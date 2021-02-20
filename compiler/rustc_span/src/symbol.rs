@@ -1425,6 +1425,7 @@ symbols! {
         x87_reg,
         xer,
         xmm_reg,
+        yield_closures,
         ymm_reg,
         zmm_reg,
     }

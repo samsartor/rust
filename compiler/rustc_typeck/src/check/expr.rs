@@ -713,6 +713,15 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         expr_opt: Option<&'tcx hir::Expr<'tcx>>,
         expr: &'tcx hir::Expr<'tcx>,
     ) -> Ty<'tcx> {
+        self.check_expr_returnlike(expr_opt, expr);
+        self.tcx.types.never
+    }
+
+    fn check_expr_returnlike(
+        &self,
+        expr_opt: Option<&'tcx hir::Expr<'tcx>>,
+        expr: &'tcx hir::Expr<'tcx>,
+    ) {
         if self.ret_coercion.is_none() {
             let mut err = ReturnStmtOutsideOfFnBody {
                 span: expr.span,
@@ -791,7 +800,6 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 coercion.coerce_forced_unit(self, &cause, &mut |_| (), true);
             }
         }
-        self.tcx.types.never
     }
 
     /// `explicit_return` is `true` if we're checkng an explicit `return expr`,
@@ -2202,6 +2210,10 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             // value's type against `()` (this check should always hold).
             None if src.is_await() => {
                 self.check_expr_coercable_to_type(&value, self.tcx.mk_unit(), None);
+                self.tcx.mk_unit()
+            }
+            _ if self.tcx.features().yield_closures => {
+                self.check_expr_returnlike(Some(value), expr);
                 self.tcx.mk_unit()
             }
             _ => {

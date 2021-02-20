@@ -681,6 +681,9 @@ declare_features! (
     /// Allows using the `non_exhaustive_omitted_patterns` lint.
     (active, non_exhaustive_omitted_patterns_lint, "1.57.0", Some(89554), None),
 
+    /// Allows yield closures.
+    (active, yield_closures, "1.99.0", Some(1), None),
+
     // -------------------------------------------------------------------------
     // feature-group-end: actual feature gates
     // -------------------------------------------------------------------------

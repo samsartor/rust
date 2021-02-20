@@ -1,0 +1,15 @@
+error[E0308]: mismatched types
+  --> $DIR/yield-return-neq.rs:6:16
+   |
+LL |         return 0;
+   |                ^ expected `&str`, found integer
+   |
+note: return type inferred to be `&str` here
+  --> $DIR/yield-return-neq.rs:5:15
+   |
+LL |         yield "";
+   |               ^^
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0308`.

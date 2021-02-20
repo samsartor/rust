@@ -1288,6 +1288,7 @@ symbols! {
         wrapping_sub,
         write_bytes,
         xmm_reg,
+        yield_closures,
         ymm_reg,
         zmm_reg,
     }

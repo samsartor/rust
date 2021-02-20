@@ -645,7 +645,10 @@ pub fn check_crate(krate: &ast::Crate, sess: &Session) {
         "async closures are unstable",
         "to use an async block, remove the `||`: `async {`"
     );
-    gate_all!(generators, "yield syntax is experimental");
+    if !visitor.features.yield_closures {
+        gate_all!(generators, "yield syntax is experimental");
+    }
+    gate_all!(yield_closures, "yield syntax is experimental");
     gate_all!(or_patterns, "or-patterns syntax is experimental");
     gate_all!(raw_ref_op, "raw address of syntax is experimental");
     gate_all!(const_trait_bound_opt_out, "`?const` on trait bounds is experimental");

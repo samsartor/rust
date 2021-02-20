@@ -644,6 +644,9 @@ declare_features! (
     /// Allows associated types in inherent impls.
     (active, inherent_associated_types, "1.52.0", Some(8995), None),
 
+    /// Allows yield closures.
+    (active, yield_closures, "1.99.0", Some(1), None),
+
     // -------------------------------------------------------------------------
     // feature-group-end: actual feature gates
     // -------------------------------------------------------------------------

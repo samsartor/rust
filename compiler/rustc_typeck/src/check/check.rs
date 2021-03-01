@@ -220,21 +220,26 @@ pub(super) fn check_fn<'a, 'tcx>(
     // We insert the deferred_generator_interiors entry after visiting the body.
     // This ensures that all nested generators appear before the entry of this generator.
     // resolve_generator_interiors relies on this property.
-    let gen_ty = if let (Some(_), Some(gen_kind)) = (can_be_generator, body.generator_kind) {
-        let interior = fcx
-            .next_ty_var(TypeVariableOrigin { kind: TypeVariableOriginKind::MiscVariable, span });
-        fcx.deferred_generator_interiors.borrow_mut().push((body.id(), interior, gen_kind));
+    let mut gen_ty = None;
+    if let (Some(_), Some(gen_kind)) = (can_be_generator, body.generator_kind) {
+        if gen_kind != hir::GeneratorKind::Closure {
+            let interior = fcx.next_ty_var(TypeVariableOrigin {
+                kind: TypeVariableOriginKind::MiscVariable,
+                span,
+            });
+            fcx.deferred_generator_interiors.borrow_mut().push((body.id(), interior, gen_kind));
 
-        let (resume_ty, yield_ty) = fcx.resume_yield_tys.unwrap();
-        Some(GeneratorTypes {
-            resume_ty,
-            yield_ty,
-            interior,
-            movability: can_be_generator.unwrap(),
-        })
-    } else {
-        None
-    };
+            let (resume_ty, yield_ty) = fcx.resume_yield_tys.unwrap();
+            gen_ty = Some(GeneratorTypes {
+                resume_ty,
+                yield_ty,
+                interior,
+                movability: can_be_generator.unwrap(),
+            });
+        }
+    }
+
+    debug!("check_fn: gen_ty={:?}, generator_kind={:?})", gen_ty, body.generator_kind);
 
     // Finalize the return check by taking the LUB of the return types
     // we saw and assigning it to the expected return type. This isn't

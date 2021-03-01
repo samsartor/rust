@@ -706,7 +706,7 @@ impl UseSpans<'_> {
     pub(super) fn describe(&self) -> String {
         match *self {
             UseSpans::ClosureUse { generator_kind, .. } => {
-                if generator_kind.is_some() {
+                if generator_kind.is_some() && generator_kind != Some(hir::GeneratorKind::Closure) {
                     " in generator".to_string()
                 } else {
                     " in closure".to_string()

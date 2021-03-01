@@ -1374,8 +1374,12 @@ impl<O> AssertKind<O> {
             DivisionByZero(_) => "attempt to divide by zero",
             RemainderByZero(_) => "attempt to calculate the remainder with a divisor of zero",
             ResumedAfterReturn(GeneratorKind::Gen) => "generator resumed after completion",
+            ResumedAfterReturn(GeneratorKind::Closure) => {
+                "yielding closure resumed after completion"
+            }
             ResumedAfterReturn(GeneratorKind::Async(_)) => "`async fn` resumed after completion",
             ResumedAfterPanic(GeneratorKind::Gen) => "generator resumed after panicking",
+            ResumedAfterPanic(GeneratorKind::Closure) => "yielding closure resumed after panicking",
             ResumedAfterPanic(GeneratorKind::Async(_)) => "`async fn` resumed after panicking",
             BoundsCheck { .. } => bug!("Unexpected AssertKind"),
         }

@@ -1376,6 +1376,7 @@ impl<'a, 'tcx> InferCtxtPrivExt<'tcx> for InferCtxt<'a, 'tcx> {
     fn describe_generator(&self, body_id: hir::BodyId) -> Option<&'static str> {
         self.tcx.hir().body(body_id).generator_kind.map(|gen_kind| match gen_kind {
             hir::GeneratorKind::Gen => "a generator",
+            hir::GeneratorKind::Closure => "a yielding closure",
             hir::GeneratorKind::Async(hir::AsyncGeneratorKind::Block) => "an async block",
             hir::GeneratorKind::Async(hir::AsyncGeneratorKind::Fn) => "an async function",
             hir::GeneratorKind::Async(hir::AsyncGeneratorKind::Closure) => "an async closure",

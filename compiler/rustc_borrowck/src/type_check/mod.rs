@@ -1648,7 +1648,7 @@ impl<'a, 'tcx> TypeChecker<'a, 'tcx> {
             }
             TerminatorKind::Yield { ref value, .. } => {
                 let value_ty = value.ty(body, tcx);
-                match body.yield_ty {
+                match body.yield_ty() {
                     None => {
                         if let Err(terr) = self.sub_types(
                             value_ty,

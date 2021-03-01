@@ -1656,6 +1656,7 @@ impl<'a, 'tcx> InferCtxtExt<'tcx> for InferCtxt<'a, 'tcx> {
                 .and_then(|generator_did| {
                     Some(match self.tcx.generator_kind(generator_did).unwrap() {
                         GeneratorKind::Gen => format!("generator is not {}", trait_name),
+                        GeneratorKind::Closure => format!("closure is not {}", trait_name),
                         GeneratorKind::Async(AsyncGeneratorKind::Fn) => self
                             .tcx
                             .parent(generator_did)

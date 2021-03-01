@@ -1235,8 +1235,9 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         let yield_ty = if let Some(yield_ty) = body.yield_ty() {
             yield_ty
+        } else if let Some(hir::GeneratorKind::Closure) = body.generator_kind() {
+            body.return_ty()
         } else {
-            // This only applies to generators
             return;
         };
 
@@ -1255,6 +1256,10 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
                     substs.discr_ty(tcx),
                     movability == hir::Movability::Movable,
                 )
+            }
+            ty::Closure(_, substs) => {
+                let substs = substs.as_closure();
+                (substs.upvar_tys().collect(), substs.witness_ty(), tcx.types.u32, true)
             }
             _ => {
                 tcx.sess

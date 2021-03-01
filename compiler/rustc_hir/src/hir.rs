@@ -1215,6 +1215,9 @@ pub enum GeneratorKind {
 
     /// A generator literal created via a `yield` inside a closure.
     Gen,
+
+    /// A yeild closure. Not really a generator.
+    Closure,
 }
 
 impl fmt::Display for GeneratorKind {
@@ -1222,6 +1225,7 @@ impl fmt::Display for GeneratorKind {
         match self {
             GeneratorKind::Async(k) => fmt::Display::fmt(k, f),
             GeneratorKind::Gen => f.write_str("generator"),
+            GeneratorKind::Closure => f.write_str("yielding closure"),
         }
     }
 }
@@ -1231,6 +1235,7 @@ impl GeneratorKind {
         match self {
             GeneratorKind::Async(ask) => ask.descr(),
             GeneratorKind::Gen => "generator",
+            GeneratorKind::Closure => "yielding closure",
         }
     }
 }
@@ -1907,6 +1912,7 @@ impl From<GeneratorKind> for YieldSource {
         match kind {
             // Guess based on the kind of the current generator.
             GeneratorKind::Gen => Self::Yield,
+            GeneratorKind::Closure => Self::Yield,
             GeneratorKind::Async(_) => Self::Await { expr: None },
         }
     }

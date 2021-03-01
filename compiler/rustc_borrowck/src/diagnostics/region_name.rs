@@ -717,7 +717,7 @@ impl<'tcx> MirBorrowckCtxt<'_, 'tcx> {
                         }
                     },
                     Some(hir::GeneratorKind::Gen) => " of generator",
-                    None => " of closure",
+                    None | Some(hir::GeneratorKind::Closure) => " of closure",
                 };
                 (span, mir_description, hir_ty)
             }

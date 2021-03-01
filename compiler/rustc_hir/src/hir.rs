@@ -549,7 +549,11 @@ pub struct WhereClause<'hir> {
 
 impl WhereClause<'_> {
     pub fn span(&self) -> Option<Span> {
-        if self.predicates.is_empty() { None } else { Some(self.span) }
+        if self.predicates.is_empty() {
+            None
+        } else {
+            Some(self.span)
+        }
     }
 
     /// The `WhereClause` under normal circumstances points at either the predicates or the empty
@@ -1300,6 +1304,9 @@ pub enum GeneratorKind {
 
     /// A generator literal created via a `yield` inside a closure.
     Gen,
+
+    /// A yeild closure. Not really a generator.
+    Closure,
 }
 
 impl fmt::Display for GeneratorKind {
@@ -1307,6 +1314,7 @@ impl fmt::Display for GeneratorKind {
         match self {
             GeneratorKind::Async(k) => fmt::Display::fmt(k, f),
             GeneratorKind::Gen => f.write_str("generator"),
+            GeneratorKind::Closure => f.write_str("yielding closure"),
         }
     }
 }
@@ -1316,6 +1324,7 @@ impl GeneratorKind {
         match self {
             GeneratorKind::Async(ask) => ask.descr(),
             GeneratorKind::Gen => "generator",
+            GeneratorKind::Closure => "yielding closure",
         }
     }
 }
@@ -1994,6 +2003,7 @@ impl From<GeneratorKind> for YieldSource {
         match kind {
             // Guess based on the kind of the current generator.
             GeneratorKind::Gen => Self::Yield,
+            GeneratorKind::Closure => Self::Yield,
             GeneratorKind::Async(_) => Self::Await { expr: None },
         }
     }

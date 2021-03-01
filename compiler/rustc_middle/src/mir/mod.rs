@@ -383,7 +383,11 @@ impl<'tcx> Body<'tcx> {
     pub fn temps_iter<'a>(&'a self) -> impl Iterator<Item = Local> + 'a {
         (self.arg_count + 1..self.local_decls.len()).filter_map(move |index| {
             let local = Local::new(index);
-            if self.local_decls[local].is_user_variable() { None } else { Some(local) }
+            if self.local_decls[local].is_user_variable() {
+                None
+            } else {
+                Some(local)
+            }
         })
     }
 
@@ -1326,7 +1330,11 @@ impl<'tcx> BasicBlockData<'tcx> {
     }
 
     pub fn visitable(&self, index: usize) -> &dyn MirVisitable<'tcx> {
-        if index < self.statements.len() { &self.statements[index] } else { &self.terminator }
+        if index < self.statements.len() {
+            &self.statements[index]
+        } else {
+            &self.terminator
+        }
     }
 }
 
@@ -1349,8 +1357,12 @@ impl<O> AssertKind<O> {
             DivisionByZero(_) => "attempt to divide by zero",
             RemainderByZero(_) => "attempt to calculate the remainder with a divisor of zero",
             ResumedAfterReturn(GeneratorKind::Gen) => "generator resumed after completion",
+            ResumedAfterReturn(GeneratorKind::Closure) => {
+                "yielding closure resumed after completion"
+            }
             ResumedAfterReturn(GeneratorKind::Async(_)) => "`async fn` resumed after completion",
             ResumedAfterPanic(GeneratorKind::Gen) => "generator resumed after panicking",
+            ResumedAfterPanic(GeneratorKind::Closure) => "yielding closure resumed after panicking",
             ResumedAfterPanic(GeneratorKind::Async(_)) => "`async fn` resumed after panicking",
             BoundsCheck { .. } => bug!("Unexpected AssertKind"),
         }

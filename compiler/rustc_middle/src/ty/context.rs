@@ -1244,7 +1244,11 @@ impl<'tcx> TyCtxt<'tcx> {
     }
 
     pub fn def_key(self, id: DefId) -> rustc_hir::definitions::DefKey {
-        if let Some(id) = id.as_local() { self.hir().def_key(id) } else { self.cstore.def_key(id) }
+        if let Some(id) = id.as_local() {
+            self.hir().def_key(id)
+        } else {
+            self.cstore.def_key(id)
+        }
     }
 
     /// Converts a `DefId` into its fully expanded `DefPath` (every
@@ -1263,7 +1267,11 @@ impl<'tcx> TyCtxt<'tcx> {
     /// Returns whether or not the crate with CrateNum 'cnum'
     /// is marked as a private dependency
     pub fn is_private_dep(self, cnum: CrateNum) -> bool {
-        if cnum == LOCAL_CRATE { false } else { self.cstore.crate_is_private_dep_untracked(cnum) }
+        if cnum == LOCAL_CRATE {
+            false
+        } else {
+            self.cstore.crate_is_private_dep_untracked(cnum)
+        }
     }
 
     #[inline]
@@ -1546,6 +1554,7 @@ impl<'tcx> TyCtxt<'tcx> {
             DefKind::Generator => match self.generator_kind(def_id).unwrap() {
                 rustc_hir::GeneratorKind::Async(..) => ("an", "async closure"),
                 rustc_hir::GeneratorKind::Gen => ("a", "generator"),
+                rustc_hir::GeneratorKind::Closure => ("a", "yielding closure"),
             },
             def_kind => (def_kind.article(), def_kind.descr(def_id)),
         }
@@ -2125,7 +2134,11 @@ impl<'tcx> TyCtxt<'tcx> {
     /// `*r == kind`.
     #[inline]
     pub fn reuse_or_mk_region(self, r: Region<'tcx>, kind: RegionKind) -> Region<'tcx> {
-        if *r == kind { r } else { self.mk_region(kind) }
+        if *r == kind {
+            r
+        } else {
+            self.mk_region(kind)
+        }
     }
 
     #[allow(rustc::usage_of_ty_tykind)]
@@ -2146,7 +2159,11 @@ impl<'tcx> TyCtxt<'tcx> {
         pred: Predicate<'tcx>,
         binder: Binder<PredicateKind<'tcx>>,
     ) -> Predicate<'tcx> {
-        if pred.kind() != binder { self.mk_predicate(binder) } else { pred }
+        if pred.kind() != binder {
+            self.mk_predicate(binder)
+        } else {
+            pred
+        }
     }
 
     pub fn mk_mach_int(self, tm: IntTy) -> Ty<'tcx> {
@@ -2300,7 +2317,11 @@ impl<'tcx> TyCtxt<'tcx> {
 
     #[inline]
     pub fn mk_diverging_default(self) -> Ty<'tcx> {
-        if self.features().never_type_fallback { self.types.never } else { self.types.unit }
+        if self.features().never_type_fallback {
+            self.types.never
+        } else {
+            self.types.unit
+        }
     }
 
     #[inline]
@@ -2451,11 +2472,9 @@ impl<'tcx> TyCtxt<'tcx> {
         eps: &[ty::Binder<ExistentialPredicate<'tcx>>],
     ) -> &'tcx List<ty::Binder<ExistentialPredicate<'tcx>>> {
         assert!(!eps.is_empty());
-        assert!(
-            eps.array_windows()
-                .all(|[a, b]| a.skip_binder().stable_cmp(self, &b.skip_binder())
-                    != Ordering::Greater)
-        );
+        assert!(eps
+            .array_windows()
+            .all(|[a, b]| a.skip_binder().stable_cmp(self, &b.skip_binder()) != Ordering::Greater));
         self._intern_poly_existential_predicates(eps)
     }
 
@@ -2472,26 +2491,46 @@ impl<'tcx> TyCtxt<'tcx> {
     }
 
     pub fn intern_type_list(self, ts: &[Ty<'tcx>]) -> &'tcx List<Ty<'tcx>> {
-        if ts.is_empty() { List::empty() } else { self._intern_type_list(ts) }
+        if ts.is_empty() {
+            List::empty()
+        } else {
+            self._intern_type_list(ts)
+        }
     }
 
     pub fn intern_substs(self, ts: &[GenericArg<'tcx>]) -> &'tcx List<GenericArg<'tcx>> {
-        if ts.is_empty() { List::empty() } else { self._intern_substs(ts) }
+        if ts.is_empty() {
+            List::empty()
+        } else {
+            self._intern_substs(ts)
+        }
     }
 
     pub fn intern_projs(self, ps: &[ProjectionKind]) -> &'tcx List<ProjectionKind> {
-        if ps.is_empty() { List::empty() } else { self._intern_projs(ps) }
+        if ps.is_empty() {
+            List::empty()
+        } else {
+            self._intern_projs(ps)
+        }
     }
 
     pub fn intern_place_elems(self, ts: &[PlaceElem<'tcx>]) -> &'tcx List<PlaceElem<'tcx>> {
-        if ts.is_empty() { List::empty() } else { self._intern_place_elems(ts) }
+        if ts.is_empty() {
+            List::empty()
+        } else {
+            self._intern_place_elems(ts)
+        }
     }
 
     pub fn intern_canonical_var_infos(
         self,
         ts: &[CanonicalVarInfo<'tcx>],
     ) -> CanonicalVarInfos<'tcx> {
-        if ts.is_empty() { List::empty() } else { self._intern_canonical_var_infos(ts) }
+        if ts.is_empty() {
+            List::empty()
+        } else {
+            self._intern_canonical_var_infos(ts)
+        }
     }
 
     pub fn mk_fn_sig<I>(

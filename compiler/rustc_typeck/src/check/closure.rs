@@ -73,8 +73,8 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
 
         debug!("check_closure: ty_of_closure returns {:?}", liberated_sig);
 
-        let generator_types =
-            check_fn(self, self.param_env, liberated_sig, decl, expr.hir_id, body, gen).1;
+        let (fctx, generator_types) =
+            check_fn(self, self.param_env, liberated_sig, decl, expr.hir_id, body, gen);
 
         let parent_substs = InternalSubsts::identity_for_item(
             self.tcx,
@@ -143,7 +143,20 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 closure_kind_ty,
                 closure_sig_as_fn_ptr_ty: self.tcx.mk_fn_ptr(sig),
                 tupled_upvars_ty,
-                witness_ty: self.tcx.mk_unit(),
+                witness_ty: if let Some(hir::GeneratorKind::Closure) = body.generator_kind {
+                    let witness = fctx.next_ty_var(TypeVariableOrigin {
+                        kind: TypeVariableOriginKind::MiscVariable,
+                        span: expr.span,
+                    });
+                    fctx.deferred_generator_interiors.borrow_mut().push((
+                        body.id(),
+                        witness,
+                        hir::GeneratorKind::Closure,
+                    ));
+                    witness
+                } else {
+                    self.tcx.mk_unit()
+                },
             },
         );
 

@@ -184,7 +184,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         self.log_capture_analysis_first_pass(closure_def_id, &delegate.capture_information, span);
 
         let (capture_information, closure_kind, origin) = self
-            .process_collected_capture_information(capture_clause, delegate.capture_information);
+            .process_collected_capture_information(capture_clause, delegate.capture_information, body.generator_kind().is_some());
 
         self.compute_min_captures(closure_def_id, capture_information);
 
@@ -341,11 +341,17 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         &self,
         capture_clause: hir::CaptureBy,
         capture_information: InferredCaptureInformation<'tcx>,
+        has_yield: bool,
     ) -> (InferredCaptureInformation<'tcx>, ty::ClosureKind, Option<(Span, Place<'tcx>)>) {
         let mut processed: InferredCaptureInformation<'tcx> = Default::default();
 
         let mut closure_kind = ty::ClosureKind::LATTICE_BOTTOM;
         let mut origin: Option<(Span, Place<'tcx>)> = None;
+
+        if has_yield {
+            // At minimum, the closure will need to mutate its own discriminant
+            closure_kind = ty::ClosureKind::FnMut;
+        }
 
         for (place, mut capture_info) in capture_information {
             // Apply rules for safety before inferring closure kind

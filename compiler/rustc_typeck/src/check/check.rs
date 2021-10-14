@@ -150,7 +150,7 @@ pub(super) fn check_fn<'a, 'tcx>(
         }
     }
 
-    if body.generator_kind.is_some() && can_be_generator.is_some() {
+    if matches!(body.generator_kind, Some(hir::GeneratorKind::Async(_) | hir::GeneratorKind::Gen)) && can_be_generator.is_some() {
         let yield_ty = fcx
             .next_ty_var(TypeVariableOrigin { kind: TypeVariableOriginKind::TypeInference, span });
         fcx.require_type_is_sized(yield_ty, span, traits::SizedYieldType);

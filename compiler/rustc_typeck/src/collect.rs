@@ -1673,7 +1673,7 @@ fn generics_of(tcx: TyCtxt<'_>, def_id: DefId) -> ty::Generics {
     // cares about anything but the length is instantiation,
     // and we don't do that for closures.
     if let Node::Expr(&hir::Expr { kind: hir::ExprKind::Closure(.., gen), .. }) = node {
-        let dummy_args = if gen.is_some() {
+        let dummy_args = if gen.is_some() && !tcx.features().yield_closures {
             &["<resume_ty>", "<yield_ty>", "<return_ty>", "<witness>", "<upvars>"][..]
         } else {
             &["<closure_kind>", "<closure_signature>", "<witness>", "<upvars>"][..]

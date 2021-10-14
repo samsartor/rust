@@ -231,6 +231,8 @@ struct TransformVisitor<'tcx> {
 
     // The original RETURN_PLACE local
     new_ret_local: Local,
+
+    takes_ownership: bool,
 }
 
 impl TransformVisitor<'tcx> {
@@ -942,7 +944,9 @@ fn create_generator_drop_shim<'tcx>(
     // Replace the return variable
     body.local_decls[RETURN_PLACE] = LocalDecl::with_source_info(tcx.mk_unit(), source_info);
 
-    make_generator_state_argument_indirect(tcx, &mut body);
+    if transform.takes_ownership {
+        make_generator_state_argument_indirect(tcx, &mut body);
+    }
 
     // Change the generator argument from &mut to *mut
     body.local_decls[SELF_ARG] = LocalDecl::with_source_info(
@@ -1128,7 +1132,9 @@ fn create_generator_resume_function<'tcx>(
 
     insert_switch(body, cases, &transform, TerminatorKind::Unreachable);
 
-    make_generator_state_argument_indirect(tcx, body);
+    if transform.takes_ownership {
+        make_generator_state_argument_indirect(tcx, body);
+    }
     make_generator_state_argument_pinned(tcx, body);
 
     // Make sure we remove dead blocks to remove
@@ -1232,6 +1238,7 @@ fn create_cases<'tcx>(
 }
 
 impl<'tcx> MirPass<'tcx> for StateTransform {
+    #[instrument(level="debug", skip(self, tcx))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         let yield_ty = if let Some(yield_ty) = body.yield_ty() {
             yield_ty
@@ -1243,8 +1250,17 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
 
         assert!(body.generator_drop().is_none());
 
-        // The first argument is the generator type passed by value
+        // The first argument is the generator type passed by reference or value
         let gen_ty = body.local_decls.raw[1].ty;
+        let (takes_ownership, gen_ty) = match *gen_ty.kind() {
+            ty::Ref(_, ty, hir::Mutability::Mut) => (false, ty),
+            ty::Ref(..) => {
+                tcx.sess
+                    .delay_span_bug(body.span, &format!("yield closure did not take self mutably"));
+                return;
+            }
+            _ => (true, gen_ty),
+        };
 
         // Get the interior types and substs which typeck computed
         let (upvars, interior, discr_ty, movable) = match *gen_ty.kind() {
@@ -1267,6 +1283,7 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
                 return;
             }
         };
+        debug!("generator_transform(gen_ty={})", gen_ty);
 
         // Compute GeneratorState<yield_ty, return_ty>
         let state_did = tcx.require_lang_item(LangItem::GeneratorState, None);
@@ -1338,6 +1355,7 @@ impl<'tcx> MirPass<'tcx> for StateTransform {
             suspension_points: Vec::new(),
             new_ret_local,
             discr_ty,
+            takes_ownership,
         };
         transform.visit_body(body);
 
